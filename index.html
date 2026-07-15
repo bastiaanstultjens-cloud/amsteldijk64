@@ -12,6 +12,23 @@
 </head>
 <body>
 
+<div class="login-screen" id="login-screen">
+  <div class="login-card">
+    <p class="login-eyebrow">Woningdashboard</p>
+    <h1 class="login-title">Amsteldijk 64-1</h1>
+    <p class="login-subtitle">1074 HZ Amsterdam</p>
+    <label class="field-label" for="login-user">Wie ben je?</label>
+    <select id="login-user" class="text-input">
+      <option value="Bastiaan">Bastiaan</option>
+      <option value="Vivian">Vivian</option>
+    </select>
+    <label class="field-label" for="login-password">Wachtwoord</label>
+    <input type="password" id="login-password" class="text-input" placeholder="Wachtwoord">
+    <p class="login-error" id="login-error">Wachtwoord onjuist. Probeer het opnieuw.</p>
+    <button class="btn btn-primary login-btn" id="login-submit">Inloggen</button>
+  </div>
+</div>
+
 <div class="app">
 
   <header class="app-header">
@@ -19,9 +36,15 @@
       <div class="brand">
         <span class="brand-name">Amsteldijk 64-1</span>
       </div>
-      <button class="icon-btn" id="theme-toggle" aria-label="Wissel donker/licht thema">
-        <i class="ti ti-moon"></i>
-      </button>
+      <div class="header-actions">
+        <div class="user-badge" id="user-badge">
+          <span class="user-initial" id="user-initial"></span>
+          <button class="icon-btn" id="logout-btn" aria-label="Uitloggen"><i class="ti ti-logout"></i></button>
+        </div>
+        <button class="icon-btn" id="theme-toggle" aria-label="Wissel donker/licht thema">
+          <i class="ti ti-moon"></i>
+        </button>
+      </div>
     </div>
     <nav class="tabs" id="tabs">
       <button class="tab active" data-tab="overzicht"><i class="ti ti-home"></i><span>Overzicht</span></button>
@@ -288,14 +311,13 @@
       <button class="icon-btn" id="settings-close" aria-label="Sluiten"><i class="ti ti-x"></i></button>
     </div>
     <div class="modal-body">
-      <p class="modal-hint">Gedeelde opslag via JSONBin.io. Maak een nieuwe Bin aan (Bastiaan) of verbind met een bestaande (Vivian).</p>
-      <label class="field-label" for="jsonbin-key">Master Key</label>
-      <input type="password" id="jsonbin-key" class="text-input" placeholder="JSONBin Master/Access Key">
-      <label class="field-label" for="jsonbin-bin">Bin ID</label>
-      <input type="text" id="jsonbin-bin" class="text-input" placeholder="Bin ID">
+      <p class="modal-hint">Gedeelde opslag via JSONBin.io — automatisch verbonden voor Bastiaan en Vivian, op elk apparaat.</p>
+      <div class="sync-status" style="margin-bottom: 14px;">
+        <span class="sync-dot" id="modal-sync-dot"></span>
+        <span id="modal-sync-label">Niet gesynchroniseerd</span>
+      </div>
       <div class="modal-actions">
-        <button class="btn btn-secondary" id="jsonbin-create">Nieuwe Bin aanmaken</button>
-        <button class="btn btn-primary" id="jsonbin-save">Opslaan &amp; verbinden</button>
+        <button class="btn btn-primary" id="sync-now-btn">Nu synchroniseren</button>
       </div>
       <label class="toggle-row">
         <input type="checkbox" id="autosync-toggle">

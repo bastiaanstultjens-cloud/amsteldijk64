@@ -130,7 +130,87 @@ img { max-width: 100%; display: block; }
 
 .app { max-width: 720px; margin: 0 auto; min-height: 100vh; }
 
+/* ---------- Login ---------- */
+
+.login-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-secondary);
+  padding: 20px;
+}
+.login-screen.hidden { display: none; }
+
+.login-card {
+  width: 100%;
+  max-width: 360px;
+  background: var(--bg-primary);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+  padding: 32px 28px;
+  text-align: center;
+}
+
+.login-eyebrow {
+  font-size: 0.78rem;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  margin-bottom: 6px;
+}
+
+.login-title { font-size: 1.7rem; margin-bottom: 2px; }
+.login-subtitle { color: var(--text-secondary); margin-bottom: 24px; }
+
+.login-card .field-label { text-align: left; margin-top: 4px; }
+.login-card .text-input { text-align: left; }
+
+.login-error {
+  display: none;
+  color: var(--danger);
+  background: var(--danger-bg);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  margin: 2px 0 12px;
+  text-align: left;
+}
+.login-error.visible { display: block; }
+
+.login-btn { width: 100%; margin-top: 4px; padding: 12px; }
+
+.login-card.shake { animation: shake .35s; }
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-8px); }
+  40% { transform: translateX(8px); }
+  60% { transform: translateX(-6px); }
+  80% { transform: translateX(6px); }
+}
+
 /* ---------- Header & tabs ---------- */
+
+.header-actions { display: flex; align-items: center; gap: 6px; }
+
+.user-badge { display: none; align-items: center; gap: 4px; }
+
+.user-initial {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--accent-light);
+  color: var(--accent-hover);
+  font-family: var(--font-head);
+  font-weight: 600;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
 .app-header {
   position: sticky;

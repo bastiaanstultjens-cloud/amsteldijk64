@@ -91,10 +91,82 @@ document.addEventListener('DOMContentLoaded', () => {
   initChat();
   initExpenses();
   initKosten();
+  initAuth();
   renderAll();
   startCountdownTicker();
-  initAutoSyncIfConfigured();
 });
+
+/* ---------- Login ---------- */
+
+let CURRENT_USER = null;
+
+function loadSession() {
+  try {
+    return JSON.parse(localStorage.getItem(SESSION_STORAGE_KEY));
+  } catch (e) {
+    return null;
+  }
+}
+
+function saveSession(user) {
+  localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify({ user }));
+}
+
+function clearSession() {
+  localStorage.removeItem(SESSION_STORAGE_KEY);
+}
+
+function initAuth() {
+  document.getElementById('login-submit').addEventListener('click', attemptLogin);
+  document.getElementById('login-password').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') attemptLogin();
+  });
+  document.getElementById('logout-btn').addEventListener('click', logout);
+
+  const session = loadSession();
+  if (session && USERS[session.user]) {
+    document.getElementById('login-user').value = session.user;
+    loginAs(session.user);
+  }
+}
+
+function attemptLogin() {
+  const user = document.getElementById('login-user').value;
+  const password = document.getElementById('login-password').value;
+  const errorEl = document.getElementById('login-error');
+  const card = document.querySelector('.login-card');
+
+  if (USERS[user] && USERS[user].password === password) {
+    errorEl.classList.remove('visible');
+    saveSession(user);
+    loginAs(user);
+  } else {
+    errorEl.classList.add('visible');
+    card.classList.remove('shake');
+    void card.offsetWidth;
+    card.classList.add('shake');
+  }
+}
+
+function loginAs(user) {
+  CURRENT_USER = user;
+  document.getElementById('login-screen').classList.add('hidden');
+  document.getElementById('login-password').value = '';
+  document.getElementById('user-initial').textContent = USERS[user].initial;
+  document.getElementById('user-badge').style.display = 'flex';
+  syncNow();
+  initAutoSyncIfConfigured();
+}
+
+function logout() {
+  clearInterval(syncTimer);
+  clearSession();
+  CURRENT_USER = null;
+  document.getElementById('user-badge').style.display = 'none';
+  document.getElementById('login-error').classList.remove('visible');
+  document.getElementById('login-password').value = '';
+  document.getElementById('login-screen').classList.remove('hidden');
+}
 
 function renderAll() {
   renderOverzicht();
@@ -1065,9 +1137,11 @@ function renderDossier() {
 
 /* ---------- JSONBin sync ---------- */
 
+function jsonbinConfigured() {
+  return Boolean(JSONBIN_BIN_ID) && Boolean(JSONBIN_MASTER_KEY) && JSONBIN_MASTER_KEY !== 'JOUW_MASTER_KEY_HIER';
+}
+
 function openSettingsModal() {
-  document.getElementById('jsonbin-key').value = STATE.settings.jsonbinApiKey;
-  document.getElementById('jsonbin-bin').value = STATE.settings.jsonbinBinId;
   document.getElementById('autosync-toggle').checked = STATE.settings.autoSync;
   document.getElementById('settings-modal').classList.add('visible');
 }
@@ -1088,58 +1162,24 @@ function initSettingsModal() {
     initAutoSyncIfConfigured();
   });
 
-  document.getElementById('jsonbin-create').addEventListener('click', async () => {
-    const key = document.getElementById('jsonbin-key').value.trim();
-    if (!key) { toast('Vul eerst een Master Key in'); return; }
-    try {
-      const res = await fetch('https://api.jsonbin.io/v3/b', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-Master-Key': key, 'X-Bin-Name': 'amsteldijk64' },
-        body: JSON.stringify({ ...STATE, uitgaven: EXPENSES, kosten: KOSTEN }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || 'Aanmaken mislukt');
-      document.getElementById('jsonbin-bin').value = data.metadata.id;
-      STATE.settings.jsonbinApiKey = key;
-      STATE.settings.jsonbinBinId = data.metadata.id;
-      saveState();
-      toast('Nieuwe Bin aangemaakt en verbonden');
-      initAutoSyncIfConfigured();
-      syncNow();
-    } catch (err) {
-      toast('Fout: ' + err.message);
-    }
-  });
-
-  document.getElementById('jsonbin-save').addEventListener('click', async () => {
-    const key = document.getElementById('jsonbin-key').value.trim();
-    const binId = document.getElementById('jsonbin-bin').value.trim();
-    if (!key || !binId) { toast('Vul Master Key en Bin ID in'); return; }
-    STATE.settings.jsonbinApiKey = key;
-    STATE.settings.jsonbinBinId = binId;
-    saveState();
-    closeSettingsModal();
-    initAutoSyncIfConfigured();
-    syncNow();
-  });
+  document.getElementById('sync-now-btn').addEventListener('click', () => syncNow());
 }
 
 function initAutoSyncIfConfigured() {
   clearInterval(syncTimer);
   updateSyncUI();
-  if (STATE.settings.autoSync && STATE.settings.jsonbinApiKey && STATE.settings.jsonbinBinId) {
+  if (CURRENT_USER && STATE.settings.autoSync && jsonbinConfigured()) {
     syncTimer = setInterval(syncNow, 30000);
   }
 }
 
 async function syncNow() {
-  const { jsonbinApiKey, jsonbinBinId } = STATE.settings;
-  if (!jsonbinApiKey || !jsonbinBinId || syncInFlight) return;
+  if (!jsonbinConfigured() || syncInFlight) return;
   syncInFlight = true;
   updateSyncUI('pending');
   try {
-    const getRes = await fetch(`https://api.jsonbin.io/v3/b/${jsonbinBinId}/latest`, {
-      headers: { 'X-Master-Key': jsonbinApiKey },
+    const getRes = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {
+      headers: { 'X-Master-Key': JSONBIN_MASTER_KEY },
     });
     const getData = await getRes.json();
     if (!getRes.ok) throw new Error(getData.message || 'Ophalen mislukt');
@@ -1157,9 +1197,9 @@ async function syncNow() {
       renderAll();
       applyTheme();
     } else {
-      const putRes = await fetch(`https://api.jsonbin.io/v3/b/${jsonbinBinId}`, {
+      const putRes = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json', 'X-Master-Key': jsonbinApiKey },
+        headers: { 'Content-Type': 'application/json', 'X-Master-Key': JSONBIN_MASTER_KEY },
         body: JSON.stringify({ ...STATE, uitgaven: EXPENSES, kosten: KOSTEN }),
       });
       if (!putRes.ok) throw new Error('Opslaan naar JSONBin mislukt');
@@ -1175,22 +1215,31 @@ async function syncNow() {
 function updateSyncUI(state) {
   const dot = document.getElementById('sync-dot');
   const label = document.getElementById('sync-label');
-  const configured = STATE.settings.jsonbinApiKey && STATE.settings.jsonbinBinId;
+  const modalDot = document.getElementById('modal-sync-dot');
+  const modalLabel = document.getElementById('modal-sync-label');
 
-  dot.classList.remove('green', 'orange', 'red');
-  if (!configured) {
+  [dot, modalDot].forEach((d) => d.classList.remove('green', 'orange', 'red'));
+
+  if (!jsonbinConfigured()) {
     label.textContent = 'Niet gesynchroniseerd';
+    modalLabel.textContent = 'Niet gesynchroniseerd';
     return;
   }
+
+  let text;
+  let color;
   if (state === 'pending') {
-    dot.classList.add('orange');
-    label.textContent = 'Synchroniseren…';
+    color = 'orange';
+    text = 'Synchroniseren…';
   } else if (state === 'error') {
-    dot.classList.add('red');
-    label.textContent = 'Sync mislukt';
+    color = 'red';
+    text = 'Sync mislukt';
   } else {
-    dot.classList.add('green');
+    color = 'green';
     const time = new Date().toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' });
-    label.textContent = `Gesynchroniseerd om ${time}`;
+    text = `Gesynchroniseerd om ${time}`;
   }
+  [dot, modalDot].forEach((d) => d.classList.add(color));
+  label.textContent = text;
+  modalLabel.textContent = text;
 }

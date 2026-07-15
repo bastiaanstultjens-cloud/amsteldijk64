@@ -2,7 +2,20 @@
 
 const STORAGE_KEY = 'a64';
 const EXPENSES_STORAGE_KEY = 'a64_uitgaven';
+const SESSION_STORAGE_KEY = 'a64_session';
 const MOVE_IN_DATE = '2026-08-15T00:00:00';
+
+/* ---------- Inloggen ---------- */
+
+const USERS = {
+  Bastiaan: { password: 'amstel64bas', initial: 'B' },
+  Vivian: { password: 'amstel64vief', initial: 'V' },
+};
+
+/* ---------- JSONBin (hardcoded gedeelde sync) ---------- */
+
+const JSONBIN_BIN_ID = '6a57dcf4f5f4af5e29943763';
+const JSONBIN_MASTER_KEY = '$2a$10$TqBogh0QI7BS6y0SoeFZUulC26Mlp0uaPQqM1/3Ps4sCQGU3SiAiW';
 
 /* ---------- Uitgaven ---------- */
 
@@ -693,8 +706,6 @@ function getDefaultState() {
     },
     settings: {
       theme: 'light',
-      jsonbinApiKey: '',
-      jsonbinBinId: '',
       autoSync: true,
     },
   };
