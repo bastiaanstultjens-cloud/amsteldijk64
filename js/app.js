@@ -14,10 +14,21 @@ function loadState() {
   try {
     const parsed = JSON.parse(raw);
     const fresh = getDefaultState();
-    return { ...fresh, ...parsed };
+    const merged = { ...fresh, ...parsed };
+    mergeSeedPhotos(merged);
+    return merged;
   } catch (e) {
     return getDefaultState();
   }
+}
+
+function mergeSeedPhotos(state) {
+  if (!state.fotos) state.fotos = { photos: [] };
+  if (!Array.isArray(state.fotos.photos)) state.fotos.photos = [];
+  const existingIds = new Set(state.fotos.photos.map((p) => p.id));
+  SEED_PHOTOS.forEach((p) => {
+    if (!existingIds.has(p.id)) state.fotos.photos.push(p);
+  });
 }
 
 function saveState() {
@@ -1189,6 +1200,7 @@ async function syncNow() {
       const remoteExpenses = remote.uitgaven || [];
       const remoteKosten = remote.kosten || [];
       STATE = { ...getDefaultState(), ...remote };
+      mergeSeedPhotos(STATE);
       EXPENSES = remoteExpenses;
       KOSTEN = remoteKosten;
       localStorage.setItem(STORAGE_KEY, JSON.stringify(STATE));
