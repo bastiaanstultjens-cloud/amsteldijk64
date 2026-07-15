@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Amsteldijk 64-1 — Woningdashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="app">
+
+  <header class="app-header">
+    <div class="app-header-inner">
+      <div class="brand">
+        <span class="brand-name">Amsteldijk 64-1</span>
+      </div>
+      <button class="icon-btn" id="theme-toggle" aria-label="Wissel donker/licht thema">
+        <i class="ti ti-moon"></i>
+      </button>
+    </div>
+    <nav class="tabs" id="tabs">
+      <button class="tab active" data-tab="overzicht"><i class="ti ti-home"></i><span>Overzicht</span></button>
+      <button class="tab" data-tab="planning"><i class="ti ti-calendar-time"></i><span>Planning</span></button>
+      <button class="tab" data-tab="kamers"><i class="ti ti-layout-grid"></i><span>Kamers</span></button>
+      <button class="tab" data-tab="huishouden"><i class="ti ti-box"></i><span>Huishouden</span></button>
+      <button class="tab" data-tab="sfeer"><i class="ti ti-palette"></i><span>Sfeer</span></button>
+      <button class="tab" data-tab="papierwerk"><i class="ti ti-file-text"></i><span>Papierwerk</span></button>
+      <button class="tab" data-tab="financien"><i class="ti ti-coin"></i><span>Financiën</span></button>
+      <button class="tab" data-tab="autos"><i class="ti ti-car"></i><span>Auto's</span></button>
+      <button class="tab" data-tab="projecten"><i class="ti ti-tools"></i><span>Projecten</span></button>
+      <button class="tab" data-tab="fotos"><i class="ti ti-photo"></i><span>Foto's</span></button>
+      <button class="tab" data-tab="chat"><i class="ti ti-message-circle"></i><span>Chat</span></button>
+      <button class="tab" data-tab="dossier"><i class="ti ti-folder"></i><span>Dossier</span></button>
+    </nav>
+  </header>
+
+  <main class="app-main">
+
+    <!-- OVERZICHT -->
+    <section class="panel active" id="panel-overzicht">
+      <div class="hero card">
+        <p class="hero-eyebrow">Ons nieuwe huis</p>
+        <h1 class="hero-address">Amsteldijk 64-1</h1>
+        <p class="hero-city">1074 HZ Amsterdam</p>
+        <div class="countdown" id="countdown">
+          <div class="countdown-block">
+            <span class="countdown-number" id="countdown-weeks">–</span>
+            <span class="countdown-label">weken</span>
+          </div>
+          <div class="countdown-block">
+            <span class="countdown-number" id="countdown-days">–</span>
+            <span class="countdown-label">dagen</span>
+          </div>
+          <span class="countdown-caption">tot sleuteloverdracht</span>
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card card">
+          <span class="stat-value" id="stat-done">0</span>
+          <span class="stat-label">Gedaan</span>
+        </div>
+        <div class="stat-card card">
+          <span class="stat-value" id="stat-todo">0</span>
+          <span class="stat-label">Te doen</span>
+        </div>
+        <div class="stat-card card">
+          <span class="stat-value" id="stat-days">0</span>
+          <span class="stat-label">Dagen</span>
+        </div>
+        <div class="stat-card card">
+          <span class="stat-value">€80k</span>
+          <span class="stat-label">Overwaarde</span>
+        </div>
+      </div>
+
+      <div class="alerts" id="alerts">
+        <div class="alert alert-success"><i class="ti ti-circle-check"></i> Eigen grond</div>
+        <div class="alert alert-warning"><i class="ti ti-alert-triangle"></i> VvE reservefonds laag</div>
+      </div>
+
+      <div class="photo-strip" id="photo-strip">
+        <div class="photo-placeholder"><i class="ti ti-photo"></i></div>
+        <div class="photo-placeholder"><i class="ti ti-photo"></i></div>
+        <div class="photo-placeholder"><i class="ti ti-photo"></i></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h2>Acties</h2>
+        </div>
+        <div class="action-list" id="action-list"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h2>Voortgang</h2>
+        </div>
+        <div class="progress-rows" id="progress-rows"></div>
+      </div>
+
+      <div class="sync-bar card" id="sync-bar">
+        <div class="sync-status">
+          <span class="sync-dot" id="sync-dot"></span>
+          <span id="sync-label">Niet gesynchroniseerd</span>
+        </div>
+        <button class="icon-btn" id="settings-btn" aria-label="Instellingen"><i class="ti ti-settings"></i></button>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h2>Notities</h2>
+        </div>
+        <textarea class="textarea" id="overzicht-notitie" placeholder="Vrije notities…"></textarea>
+      </div>
+    </section>
+
+    <!-- PLANNING -->
+    <section class="panel" id="panel-planning">
+      <h1 class="panel-title">Planning</h1>
+      <div class="phase-bar" id="phase-bar"></div>
+      <div id="planning-phases"></div>
+    </section>
+
+    <!-- KAMERS -->
+    <section class="panel" id="panel-kamers">
+      <h1 class="panel-title">Kamers</h1>
+      <div class="rooms-grid" id="rooms-grid"></div>
+    </section>
+
+    <!-- HUISHOUDEN -->
+    <section class="panel" id="panel-huishouden">
+      <h1 class="panel-title">Huishouden</h1>
+      <div class="status-stats" id="status-stats"></div>
+      <div class="search-bar">
+        <i class="ti ti-search"></i>
+        <input type="text" id="household-search" placeholder="Zoek een item…">
+      </div>
+      <div class="filter-bar" id="filter-category"></div>
+      <div class="filter-bar" id="filter-status"></div>
+      <div class="household-list" id="household-list"></div>
+    </section>
+
+    <!-- SFEER -->
+    <section class="panel" id="panel-sfeer">
+      <h1 class="panel-title">Sfeer</h1>
+      <div class="card">
+        <div class="card-header"><h2>Kleurpalet</h2></div>
+        <div class="palette-row" id="palette-row"></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h2>Interieurstijl</h2></div>
+        <div class="tag-row" id="style-tags"></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h2>Inspiratie</h2></div>
+        <textarea class="textarea" id="sfeer-notitie" placeholder="Notities en Pinterest links…"></textarea>
+      </div>
+      <div class="card">
+        <div class="card-header"><h2>Winkellijst</h2></div>
+        <div class="check-list" id="shop-list"></div>
+      </div>
+    </section>
+
+    <!-- PAPIERWERK -->
+    <section class="panel" id="panel-papierwerk">
+      <h1 class="panel-title">Papierwerk</h1>
+      <div id="paperwork-sections"></div>
+    </section>
+
+    <!-- FINANCIEN -->
+    <section class="panel" id="panel-financien">
+      <h1 class="panel-title">Financiën</h1>
+      <div class="finance-grid" id="finance-grid"></div>
+      <div class="card">
+        <div class="card-header"><h2>Inrichtingsbudget</h2></div>
+        <div class="budget-editor">
+          <span>€</span>
+          <input type="number" id="budget-input" step="100">
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h2>Financiële regeling inbreng</h2></div>
+        <div id="inbreng-details" class="inbreng-details"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><h2>Kostenoverzicht</h2></div>
+        <div class="finance-grid" id="kosten-totals"></div>
+      </div>
+      <div id="kosten-categories"></div>
+
+      <div class="card">
+        <div class="card-header">
+          <h2>Uitgavenoverzicht</h2>
+          <button class="btn btn-primary btn-sm" id="expense-add-btn"><i class="ti ti-plus"></i> Toevoegen</button>
+        </div>
+        <div class="table-scroll">
+          <table class="expense-table">
+            <thead>
+              <tr>
+                <th>Datum</th>
+                <th>Omschrijving</th>
+                <th>Categorie</th>
+                <th>Bedrag</th>
+                <th>Betaald door</th>
+                <th>Voor</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="expense-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="finance-grid" id="expense-totals"></div>
+    </section>
+
+    <!-- AUTO'S -->
+    <section class="panel" id="panel-autos">
+      <h1 class="panel-title">Auto's</h1>
+      <div id="cars-list"></div>
+    </section>
+
+    <!-- PROJECTEN -->
+    <section class="panel" id="panel-projecten">
+      <h1 class="panel-title">Projecten</h1>
+      <div class="projects-grid" id="projects-grid"></div>
+    </section>
+
+    <!-- FOTO'S -->
+    <section class="panel" id="panel-fotos">
+      <h1 class="panel-title">Foto's</h1>
+      <div class="photo-tabs" id="photo-tabs"></div>
+      <div class="photo-gallery" id="photo-gallery"></div>
+      <label class="btn btn-secondary photo-upload-btn">
+        <i class="ti ti-upload"></i> Foto toevoegen
+        <input type="file" id="photo-upload" accept="image/*" multiple hidden>
+      </label>
+    </section>
+
+    <!-- CHAT -->
+    <section class="panel" id="panel-chat">
+      <h1 class="panel-title">Chat</h1>
+      <div class="card chat-key-card" id="chat-key-card">
+        <div class="card-header"><h2>Claude API-sleutel</h2></div>
+        <input type="password" id="chat-api-key" class="text-input" placeholder="sk-ant-...">
+        <button class="btn btn-primary" id="chat-key-save">Opslaan</button>
+      </div>
+      <div class="chat-window" id="chat-window"></div>
+      <div class="chat-suggestions" id="chat-suggestions"></div>
+      <div class="chat-input-row">
+        <input type="text" id="chat-input" class="text-input" placeholder="Stel een vraag…">
+        <button class="btn btn-primary" id="chat-send" aria-label="Verstuur"><i class="ti ti-send"></i></button>
+      </div>
+    </section>
+
+    <!-- DOSSIER -->
+    <section class="panel" id="panel-dossier">
+      <h1 class="panel-title">Dossier</h1>
+      <div class="card">
+        <div class="card-header"><h2>Woninggegevens</h2></div>
+        <div class="dossier-info" id="dossier-info"></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h2>Fundering</h2></div>
+        <div class="dossier-info" id="dossier-fundering"></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h2>MOVE-documenten</h2></div>
+        <div class="document-list" id="document-list"></div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- SETTINGS MODAL -->
+<div class="modal-overlay" id="settings-modal">
+  <div class="modal card">
+    <div class="modal-header">
+      <h2>Instellingen</h2>
+      <button class="icon-btn" id="settings-close" aria-label="Sluiten"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body">
+      <p class="modal-hint">Gedeelde opslag via JSONBin.io. Maak een nieuwe Bin aan (Bastiaan) of verbind met een bestaande (Vivian).</p>
+      <label class="field-label" for="jsonbin-key">Master Key</label>
+      <input type="password" id="jsonbin-key" class="text-input" placeholder="JSONBin Master/Access Key">
+      <label class="field-label" for="jsonbin-bin">Bin ID</label>
+      <input type="text" id="jsonbin-bin" class="text-input" placeholder="Bin ID">
+      <div class="modal-actions">
+        <button class="btn btn-secondary" id="jsonbin-create">Nieuwe Bin aanmaken</button>
+        <button class="btn btn-primary" id="jsonbin-save">Opslaan &amp; verbinden</button>
+      </div>
+      <label class="toggle-row">
+        <input type="checkbox" id="autosync-toggle">
+        <span>Automatisch synchroniseren (elke 30s)</span>
+      </label>
+    </div>
+  </div>
+</div>
+
+<!-- LIGHTBOX -->
+<div class="lightbox-overlay" id="lightbox">
+  <button class="icon-btn lightbox-close" id="lightbox-close" aria-label="Sluiten"><i class="ti ti-x"></i></button>
+  <button class="icon-btn lightbox-prev" id="lightbox-prev" aria-label="Vorige"><i class="ti ti-chevron-left"></i></button>
+  <img class="lightbox-img" id="lightbox-img" alt="">
+  <button class="icon-btn lightbox-next" id="lightbox-next" aria-label="Volgende"><i class="ti ti-chevron-right"></i></button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
