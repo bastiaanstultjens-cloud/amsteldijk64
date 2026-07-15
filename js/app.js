@@ -128,6 +128,8 @@ function clearSession() {
 }
 
 function initAuth() {
+  document.getElementById('login-screen').style.backgroundImage = `url("${EXTERIOR_PHOTO}")`;
+
   document.getElementById('login-submit').addEventListener('click', attemptLogin);
   document.getElementById('login-password').addEventListener('keydown', (e) => {
     if (e.key === 'Enter') attemptLogin();
@@ -321,17 +323,25 @@ function renderOverzicht() {
     </div>
   `).join('');
 
+  const hero = document.getElementById('hero');
+  const heroPhoto = STATE.fotos.photos.find((p) => p.id === 'seed-530-jpg-avif') || findPrimaryPhoto('woonkamer') || findPrimaryPhoto('keuken');
+  if (heroPhoto) hero.style.backgroundImage = `url("${heroPhoto.dataUrl}")`;
+
   const strip = document.getElementById('photo-strip');
-  const photos = STATE.fotos.photos.slice(0, 3);
-  if (photos.length) {
-    strip.innerHTML = photos.map((p) => `<div class="photo-thumb"><img src="${p.dataUrl}" alt="${p.name}" loading="lazy"></div>`).join('')
-      + Array(3 - photos.length).fill('<div class="photo-placeholder"><i class="ti ti-photo"></i></div>').join('');
-  }
+  const stripPhotos = [findPrimaryPhoto('woonkamer'), findPrimaryPhoto('eetkamer'), findPrimaryPhoto('dakterras')].filter(Boolean);
+  strip.innerHTML = stripPhotos.map((p) => `<div class="photo-thumb"><img src="${p.dataUrl}" alt="${p.name}" loading="lazy"></div>`).join('')
+    + Array(Math.max(0, 3 - stripPhotos.length)).fill('<div class="photo-placeholder"><i class="ti ti-photo"></i></div>').join('');
 }
 
 function tagClass(tag) {
   const map = { Urgent: 'tag-urgent', Bastiaan: 'tag-bastiaan', Vivian: 'tag-vivian', Beiden: 'tag-beiden' };
   return map[tag] || '';
+}
+
+function findPrimaryPhoto(roomId) {
+  return STATE.fotos.photos.find((p) => p.room === roomId && p.primary)
+    || STATE.fotos.photos.find((p) => p.room === roomId)
+    || null;
 }
 
 /* ---------- Planning ---------- */
@@ -379,7 +389,7 @@ function renderPlanning() {
 function renderKamers() {
   const grid = document.getElementById('rooms-grid');
   grid.innerHTML = STATE.kamers.rooms.map((room) => {
-    const photo = STATE.fotos.photos.find((p) => p.room === room.id);
+    const photo = findPrimaryPhoto(room.id);
     return `
       <div class="room-card">
         <div class="room-thumb">${photo ? `<img src="${photo.dataUrl}" alt="${room.name}" loading="lazy">` : '<i class="ti ti-photo"></i>'}</div>

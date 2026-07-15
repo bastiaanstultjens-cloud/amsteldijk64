@@ -139,18 +139,28 @@ img { max-width: 100%; display: block; }
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--bg-secondary);
+  background: var(--bg-secondary) center / cover no-repeat;
   padding: 20px;
 }
 .login-screen.hidden { display: none; }
 
+.login-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(20, 15, 12, 0.55) 0%, rgba(15, 11, 9, 0.78) 100%);
+}
+
 .login-card {
+  position: relative;
+  z-index: 1;
   width: 100%;
   max-width: 360px;
-  background: var(--bg-primary);
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   border-radius: var(--radius);
-  box-shadow: var(--shadow-md);
-  padding: 32px 28px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+  padding: 36px 28px;
   text-align: center;
 }
 
@@ -162,7 +172,7 @@ img { max-width: 100%; display: block; }
   margin-bottom: 6px;
 }
 
-.login-title { font-size: 1.7rem; margin-bottom: 2px; }
+.login-title { font-size: 1.8rem; margin-bottom: 2px; }
 .login-subtitle { color: var(--text-secondary); margin-bottom: 24px; }
 
 .login-card .field-label { text-align: left; margin-top: 4px; }
@@ -306,22 +316,47 @@ img { max-width: 100%; display: block; }
 
 /* ---------- Hero / overzicht ---------- */
 
-.hero { text-align: center; padding: 32px 20px; }
+.hero {
+  position: relative;
+  min-height: 360px;
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: flex-end;
+  background: var(--bg-tertiary) center / cover no-repeat;
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(15, 12, 10, 0) 35%, rgba(12, 9, 7, 0.85) 100%);
+}
+
+.hero-content {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  padding: 28px 24px 26px;
+  text-align: center;
+}
 
 .hero-eyebrow {
   font-size: 0.78rem;
   letter-spacing: .06em;
   text-transform: uppercase;
-  color: var(--text-tertiary);
+  color: rgba(255, 255, 255, 0.78);
   margin-bottom: 6px;
 }
 
 .hero-address {
   font-size: 2.1rem;
+  color: #fff;
   margin-bottom: 2px;
 }
 
-.hero-city { color: var(--text-secondary); margin-bottom: 20px; }
+.hero-city { color: rgba(255, 255, 255, 0.85); margin-bottom: 20px; }
 
 .countdown { display: flex; align-items: baseline; justify-content: center; gap: 18px; flex-wrap: wrap; }
 
@@ -337,7 +372,7 @@ img { max-width: 100%; display: block; }
 
 .countdown-label {
   font-size: 0.75rem;
-  color: var(--text-tertiary);
+  color: rgba(255, 255, 255, 0.7);
   text-transform: uppercase;
   letter-spacing: .04em;
   margin-top: 4px;
@@ -346,7 +381,7 @@ img { max-width: 100%; display: block; }
 .countdown-caption {
   flex-basis: 100%;
   font-size: 0.82rem;
-  color: var(--text-secondary);
+  color: rgba(255, 255, 255, 0.8);
   margin-top: 6px;
 }
 

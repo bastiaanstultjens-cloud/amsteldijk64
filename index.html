@@ -13,6 +13,7 @@
 <body>
 
 <div class="login-screen" id="login-screen">
+  <div class="login-overlay"></div>
   <div class="login-card">
     <p class="login-eyebrow">Woningdashboard</p>
     <h1 class="login-title">Amsteldijk 64-1</h1>
@@ -66,20 +67,23 @@
 
     <!-- OVERZICHT -->
     <section class="panel active" id="panel-overzicht">
-      <div class="hero card">
-        <p class="hero-eyebrow">Ons nieuwe huis</p>
-        <h1 class="hero-address">Amsteldijk 64-1</h1>
-        <p class="hero-city">1074 HZ Amsterdam</p>
-        <div class="countdown" id="countdown">
-          <div class="countdown-block">
-            <span class="countdown-number" id="countdown-weeks">–</span>
-            <span class="countdown-label">weken</span>
+      <div class="hero" id="hero">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+          <p class="hero-eyebrow">Ons nieuwe huis</p>
+          <h1 class="hero-address">Amsteldijk 64-1</h1>
+          <p class="hero-city">1074 HZ Amsterdam</p>
+          <div class="countdown" id="countdown">
+            <div class="countdown-block">
+              <span class="countdown-number" id="countdown-weeks">–</span>
+              <span class="countdown-label">weken</span>
+            </div>
+            <div class="countdown-block">
+              <span class="countdown-number" id="countdown-days">–</span>
+              <span class="countdown-label">dagen</span>
+            </div>
+            <span class="countdown-caption">tot sleuteloverdracht</span>
           </div>
-          <div class="countdown-block">
-            <span class="countdown-number" id="countdown-days">–</span>
-            <span class="countdown-label">dagen</span>
-          </div>
-          <span class="countdown-caption">tot sleuteloverdracht</span>
         </div>
       </div>
 
