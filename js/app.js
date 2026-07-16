@@ -216,7 +216,6 @@ function renderAll() {
   renderPlanning();
   renderKamers();
   renderHuishouden();
-  renderSfeer();
   renderPapierwerk();
   renderFinancien();
   renderKosten();
@@ -529,34 +528,6 @@ function renderHouseholdList() {
       item[sel.dataset.field] = sel.value;
       saveState();
       renderHuishouden();
-    });
-  });
-}
-
-/* ---------- Sfeer ---------- */
-
-function renderSfeer() {
-  document.getElementById('palette-row').innerHTML = SFEER.palette.map((c) => `<div class="palette-swatch" style="background:${c.hex}">${c.name}</div>`).join('');
-  document.getElementById('style-tags').innerHTML = SFEER.styleTags.map((t) => `<span class="tag">${t}</span>`).join('');
-
-  const notitie = document.getElementById('sfeer-notitie');
-  notitie.value = STATE.sfeer.notitie;
-  notitie.oninput = () => { STATE.sfeer.notitie = notitie.value; saveState(); };
-
-  const shopList = document.getElementById('shop-list');
-  shopList.innerHTML = STATE.sfeer.shops.map((s) => `
-    <div class="check-item ${s.checked ? 'done' : ''}" data-shop-id="${s.id}">
-      <input type="checkbox" class="checkbox" ${s.checked ? 'checked' : ''}>
-      <span class="check-item-text">${s.name}</span>
-    </div>
-  `).join('');
-  shopList.querySelectorAll('.checkbox').forEach((cb) => {
-    cb.addEventListener('change', (e) => {
-      const row = e.target.closest('[data-shop-id]');
-      const shop = STATE.sfeer.shops.find((s) => s.id === row.dataset.shopId);
-      shop.checked = e.target.checked;
-      saveState();
-      renderSfeer();
     });
   });
 }
@@ -898,11 +869,34 @@ function renderExpenseTotals() {
 
 /* ---------- Auto's ---------- */
 
+const MINI_SVG = `
+<svg viewBox="0 0 200 90" aria-hidden="true">
+  <rect x="20" y="50" width="160" height="26" rx="13" fill="currentColor"/>
+  <rect x="55" y="16" width="90" height="38" rx="18" fill="currentColor"/>
+  <rect x="65" y="26" width="70" height="20" rx="8" fill="var(--bg-primary)"/>
+  <circle cx="60" cy="76" r="17" fill="currentColor"/>
+  <circle cx="60" cy="76" r="7" fill="var(--bg-primary)"/>
+  <circle cx="140" cy="76" r="17" fill="currentColor"/>
+  <circle cx="140" cy="76" r="7" fill="var(--bg-primary)"/>
+</svg>`;
+
+const PORSCHE_SVG = `
+<svg viewBox="0 0 240 90" aria-hidden="true">
+  <rect x="10" y="54" width="220" height="20" rx="10" fill="currentColor"/>
+  <rect x="95" y="34" width="60" height="24" rx="12" fill="currentColor"/>
+  <rect x="105" y="40" width="42" height="14" rx="6" fill="var(--bg-primary)"/>
+  <circle cx="55" cy="74" r="16" fill="currentColor"/>
+  <circle cx="55" cy="74" r="6.5" fill="var(--bg-primary)"/>
+  <circle cx="195" cy="74" r="16" fill="currentColor"/>
+  <circle cx="195" cy="74" r="6.5" fill="var(--bg-primary)"/>
+</svg>`;
+
 function renderAutos() {
   const mini = STATE.autos.mini;
   const porsche = STATE.autos.porsche;
   document.getElementById('cars-list').innerHTML = `
     <div class="card car-card" data-car="mini">
+      <div class="car-icon">${MINI_SVG}</div>
       <div class="car-card-header">
         <span class="car-model">${mini.model}</span>
         <span class="car-owner">${mini.owner}</span>
@@ -914,15 +908,12 @@ function renderAutos() {
       </div>
     </div>
     <div class="card car-card" data-car="porsche">
+      <div class="car-icon">${PORSCHE_SVG}</div>
       <div class="car-card-header">
         <span class="car-model">${porsche.model}</span>
         <span class="car-owner">${porsche.owner}</span>
       </div>
-      <p class="car-task">${porsche.task}<br><span style="color:var(--text-tertiary)">${porsche.currentLocation}</span></p>
-      <div class="car-tip">
-        <strong>Tip: ${porsche.tip.name}</strong>
-        <span>${porsche.tip.phone} · ${porsche.tip.rating}★ · ${porsche.tip.feature}</span>
-      </div>
+      <p class="car-task">${porsche.task}</p>
       <div class="check-item">
         <input type="checkbox" class="checkbox" ${porsche.done ? 'checked' : ''} data-car-done="porsche">
         <span class="check-item-text">Geregeld</span>

@@ -361,28 +361,6 @@ const PLANNING_PHASES = [
   },
 ];
 
-/* ---------- Sfeer ---------- */
-
-const SFEER = {
-  palette: [
-    { name: 'Terracotta', hex: '#C4603A' },
-    { name: 'Warm beige', hex: '#E4D9C8' },
-    { name: 'Walnoot', hex: '#5C4433' },
-    { name: 'Messing', hex: '#B8A164' },
-  ],
-  styleTags: [
-    'Warm beige & linen', 'Eiken & walnoot', 'Mid-century modern',
-    'Grote kunst', 'Travertijn accenten', 'Messing details',
-  ],
-  shops: [
-    { id: 'shop-1', name: 'Frozen Fountain', checked: false },
-    { id: 'shop-2', name: 'Moooi', checked: false },
-    { id: 'shop-3', name: 'Rietveld Interieur', checked: false },
-    { id: 'shop-4', name: 'Galerie Waterman', checked: false },
-    { id: 'shop-5', name: 'Hay Amsterdam', checked: false },
-  ],
-};
-
 /* ---------- Papierwerk ---------- */
 
 const PAPERWORK_SECTIONS = [
@@ -481,20 +459,13 @@ const CARS = {
   mini: {
     owner: 'Vivian',
     model: 'Mini',
-    task: 'Parkeervergunning overschrijven naar Amsteldijk na GBA-inschrijving',
+    task: 'Vivian mag parkeren bij het Pestana Hotel. Parkeervergunning overschrijven naar Amsteldijk na GBA-inschrijving.',
     done: false,
   },
   porsche: {
     owner: 'Bastiaan',
     model: 'Porsche Boxster',
-    task: 'Zoekt particuliere parkeerplaats in de buurt',
-    currentLocation: 'Staat tot die tijd op de huidige plek in Amsterdam',
-    tip: {
-      name: 'Mobypark Weesperzijde',
-      phone: '+31 20 808 1502',
-      rating: 4.7,
-      feature: 'Overdekt',
-    },
+    task: 'Bastiaan is op zoek naar een particuliere parkeerplaats in de buurt. Tot die tijd staat de auto op de huidige plek in Amsterdam.',
     done: false,
   },
 };
@@ -720,10 +691,6 @@ function getDefaultState() {
     },
     huishouden: {
       items: JSON.parse(JSON.stringify(HOUSEHOLD_ITEMS)),
-    },
-    sfeer: {
-      notitie: '',
-      shops: JSON.parse(JSON.stringify(SFEER.shops)),
     },
     papierwerk: {
       sections: JSON.parse(JSON.stringify(PAPERWORK_SECTIONS)),
