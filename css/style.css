@@ -978,20 +978,20 @@ img { max-width: 100%; display: block; }
 /* ---------- Auto's ---------- */
 
 .car-card { margin-bottom: 16px; }
-.car-icon {
-  background: var(--accent-light);
+.car-photo {
+  background: var(--bg-secondary);
   border-radius: var(--radius-sm);
+  overflow: hidden;
+  margin-bottom: 14px;
+  height: 180px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 18px 12px;
-  margin-bottom: 14px;
 }
-.car-icon svg {
+.car-photo img {
   width: 100%;
-  max-width: 220px;
-  height: auto;
-  color: var(--accent-hover);
+  height: 100%;
+  object-fit: contain;
 }
 .car-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
 .car-model { font-size: 1.05rem; font-family: var(--font-head); font-weight: 600; }

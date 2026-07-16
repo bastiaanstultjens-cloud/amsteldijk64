@@ -869,34 +869,12 @@ function renderExpenseTotals() {
 
 /* ---------- Auto's ---------- */
 
-const MINI_SVG = `
-<svg viewBox="0 0 200 90" aria-hidden="true">
-  <rect x="20" y="50" width="160" height="26" rx="13" fill="currentColor"/>
-  <rect x="55" y="16" width="90" height="38" rx="18" fill="currentColor"/>
-  <rect x="65" y="26" width="70" height="20" rx="8" fill="var(--bg-primary)"/>
-  <circle cx="60" cy="76" r="17" fill="currentColor"/>
-  <circle cx="60" cy="76" r="7" fill="var(--bg-primary)"/>
-  <circle cx="140" cy="76" r="17" fill="currentColor"/>
-  <circle cx="140" cy="76" r="7" fill="var(--bg-primary)"/>
-</svg>`;
-
-const PORSCHE_SVG = `
-<svg viewBox="0 0 240 90" aria-hidden="true">
-  <rect x="10" y="54" width="220" height="20" rx="10" fill="currentColor"/>
-  <rect x="95" y="34" width="60" height="24" rx="12" fill="currentColor"/>
-  <rect x="105" y="40" width="42" height="14" rx="6" fill="var(--bg-primary)"/>
-  <circle cx="55" cy="74" r="16" fill="currentColor"/>
-  <circle cx="55" cy="74" r="6.5" fill="var(--bg-primary)"/>
-  <circle cx="195" cy="74" r="16" fill="currentColor"/>
-  <circle cx="195" cy="74" r="6.5" fill="var(--bg-primary)"/>
-</svg>`;
-
 function renderAutos() {
   const mini = STATE.autos.mini;
   const porsche = STATE.autos.porsche;
   document.getElementById('cars-list').innerHTML = `
     <div class="card car-card" data-car="mini">
-      <div class="car-icon">${MINI_SVG}</div>
+      <div class="car-photo"><img src="${MINI_PHOTO}" alt="Mini"></div>
       <div class="car-card-header">
         <span class="car-model">${mini.model}</span>
         <span class="car-owner">${mini.owner}</span>
@@ -908,7 +886,7 @@ function renderAutos() {
       </div>
     </div>
     <div class="card car-card" data-car="porsche">
-      <div class="car-icon">${PORSCHE_SVG}</div>
+      <div class="car-photo"><img src="${BOXSTER_PHOTO}" alt="Porsche Boxster"></div>
       <div class="car-card-header">
         <span class="car-model">${porsche.model}</span>
         <span class="car-owner">${porsche.owner}</span>
