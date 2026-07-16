@@ -5,6 +5,8 @@ let EXPENSES = [];
 let KOSTEN = [];
 let syncTimer = null;
 let syncInFlight = false;
+let syncDirtyDuringFlight = false;
+let syncDebounceTimer = null;
 
 /* ---------- State ---------- */
 
@@ -15,25 +17,42 @@ function loadState() {
     const parsed = JSON.parse(raw);
     const fresh = getDefaultState();
     const merged = { ...fresh, ...parsed };
-    mergeSeedPhotos(merged);
+    stripSeedPhotos(merged);
     return merged;
   } catch (e) {
     return getDefaultState();
   }
 }
 
-function mergeSeedPhotos(state) {
-  if (!state.fotos) state.fotos = { photos: [] };
-  if (!Array.isArray(state.fotos.photos)) state.fotos.photos = [];
-  const existingIds = new Set(state.fotos.photos.map((p) => p.id));
-  SEED_PHOTOS.forEach((p) => {
-    if (!existingIds.has(p.id)) state.fotos.photos.push(p);
-  });
+// Seed-fotos staan al identiek in data.js bij beide gebruikers en horen
+// nooit in de opgeslagen/gesynchroniseerde state te belanden (te groot
+// voor JSONBin — 413 Payload Too Large). Alleen zelf-geuploade fotos
+// blijven in state.fotos.photos; seed-fotos worden bij weergave
+// toegevoegd via getAllPhotos().
+function stripSeedPhotos(state) {
+  if (!state.fotos || !Array.isArray(state.fotos.photos)) {
+    state.fotos = { photos: [] };
+    return;
+  }
+  const seedIds = new Set(SEED_PHOTOS.map((p) => p.id));
+  state.fotos.photos = state.fotos.photos.filter((p) => !seedIds.has(p.id));
+}
+
+function getAllPhotos() {
+  return [...SEED_PHOTOS, ...STATE.fotos.photos];
 }
 
 function saveState() {
   STATE.meta.lastUpdated = new Date().toISOString();
   localStorage.setItem(STORAGE_KEY, JSON.stringify(STATE));
+  scheduleSync();
+}
+
+function scheduleSync() {
+  clearTimeout(syncDebounceTimer);
+  syncDebounceTimer = setTimeout(() => {
+    if (CURRENT_USER) syncNow();
+  }, 2000);
 }
 
 function loadExpenses() {
@@ -88,7 +107,7 @@ function toast(msg) {
 
 /* ---------- Init ---------- */
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   STATE = loadState();
   EXPENSES = loadExpenses();
   KOSTEN = loadKosten();
@@ -102,9 +121,9 @@ document.addEventListener('DOMContentLoaded', () => {
   initChat();
   initExpenses();
   initKosten();
-  initAuth();
   renderAll();
   startCountdownTicker();
+  await initAuth();
 });
 
 /* ---------- Login ---------- */
@@ -127,7 +146,7 @@ function clearSession() {
   localStorage.removeItem(SESSION_STORAGE_KEY);
 }
 
-function initAuth() {
+async function initAuth() {
   document.getElementById('login-screen').style.backgroundImage = `url("${EXTERIOR_PHOTO}")`;
 
   document.getElementById('login-submit').addEventListener('click', attemptLogin);
@@ -139,11 +158,11 @@ function initAuth() {
   const session = loadSession();
   if (session && USERS[session.user]) {
     document.getElementById('login-user').value = session.user;
-    loginAs(session.user);
+    await loginAs(session.user);
   }
 }
 
-function attemptLogin() {
+async function attemptLogin() {
   const user = document.getElementById('login-user').value;
   const password = document.getElementById('login-password').value;
   const errorEl = document.getElementById('login-error');
@@ -152,7 +171,7 @@ function attemptLogin() {
   if (USERS[user] && USERS[user].password === password) {
     errorEl.classList.remove('visible');
     saveSession(user);
-    loginAs(user);
+    await loginAs(user);
   } else {
     errorEl.classList.add('visible');
     card.classList.remove('shake');
@@ -161,18 +180,29 @@ function attemptLogin() {
   }
 }
 
-function loginAs(user) {
+async function loginAs(user) {
   CURRENT_USER = user;
-  document.getElementById('login-screen').classList.add('hidden');
-  document.getElementById('login-password').value = '';
+  const submitBtn = document.getElementById('login-submit');
+  const originalLabel = submitBtn.textContent;
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Laatste stand ophalen…';
+
   document.getElementById('user-initial').textContent = USERS[user].initial;
+
+  await syncNow();
+  renderAll();
+
+  submitBtn.disabled = false;
+  submitBtn.textContent = originalLabel;
+  document.getElementById('login-password').value = '';
   document.getElementById('user-badge').style.display = 'flex';
-  syncNow();
+  document.getElementById('login-screen').classList.add('hidden');
   initAutoSyncIfConfigured();
 }
 
 function logout() {
   clearInterval(syncTimer);
+  clearTimeout(syncDebounceTimer);
   clearSession();
   CURRENT_USER = null;
   document.getElementById('user-badge').style.display = 'none';
@@ -324,7 +354,7 @@ function renderOverzicht() {
   `).join('');
 
   const hero = document.getElementById('hero');
-  const heroPhoto = STATE.fotos.photos.find((p) => p.id === 'seed-530-jpg-avif') || findPrimaryPhoto('woonkamer') || findPrimaryPhoto('keuken');
+  const heroPhoto = SEED_PHOTOS.find((p) => p.id === 'seed-530-jpg-avif') || findPrimaryPhoto('woonkamer') || findPrimaryPhoto('keuken');
   if (heroPhoto) hero.style.backgroundImage = `url("${heroPhoto.dataUrl}")`;
 
   const strip = document.getElementById('photo-strip');
@@ -339,8 +369,9 @@ function tagClass(tag) {
 }
 
 function findPrimaryPhoto(roomId) {
-  return STATE.fotos.photos.find((p) => p.room === roomId && p.primary)
-    || STATE.fotos.photos.find((p) => p.room === roomId)
+  const photos = getAllPhotos();
+  return photos.find((p) => p.room === roomId && p.primary)
+    || photos.find((p) => p.room === roomId)
     || null;
 }
 
@@ -581,12 +612,23 @@ function renderFinancien() {
   };
 
   const inbreng = FINANCE.inbreng;
+  const betaald = STATE.financien.aflossingBetaald || 0;
+  const resterend = Math.max(0, inbreng.verschil - betaald);
   document.getElementById('inbreng-details').innerHTML = `
     <div class="inbreng-row"><span>Inbreng Vivian</span><span>${formatEUR(inbreng.vivian)}</span></div>
     <div class="inbreng-row"><span>Inbreng Bastiaan</span><span>${formatEUR(inbreng.bastiaan)}</span></div>
     <div class="inbreng-row"><span>Verschil</span><span>${formatEUR(inbreng.verschil)}</span></div>
     <div class="inbreng-row"><span>Bastiaan lost af aan Vivian</span><span>${formatEUR(inbreng.maandbedrag)}/mnd × ${inbreng.maanden} mnd</span></div>
+    <div class="inbreng-row"><span>Nog te betalen</span><span>${formatEUR(resterend)}</span></div>
   `;
+
+  const aflossingInput = document.getElementById('aflossing-input');
+  aflossingInput.value = betaald;
+  aflossingInput.onchange = () => {
+    STATE.financien.aflossingBetaald = Number(aflossingInput.value) || 0;
+    saveState();
+    renderFinancien();
+  };
 }
 
 /* ---------- Kostenoverzicht ---------- */
@@ -994,9 +1036,10 @@ function renderFotos() {
     });
   });
 
+  const allPhotos = getAllPhotos();
   const photos = activePhotoCategory === 'Alle'
-    ? STATE.fotos.photos
-    : STATE.fotos.photos.filter((p) => p.room === activePhotoCategory);
+    ? allPhotos
+    : allPhotos.filter((p) => p.room === activePhotoCategory);
 
   const gallery = document.getElementById('photo-gallery');
   if (!photos.length) {
@@ -1195,8 +1238,13 @@ function initAutoSyncIfConfigured() {
 }
 
 async function syncNow() {
-  if (!jsonbinConfigured() || syncInFlight) return;
+  if (!jsonbinConfigured()) return;
+  if (syncInFlight) {
+    syncDirtyDuringFlight = true;
+    return;
+  }
   syncInFlight = true;
+  clearTimeout(syncDebounceTimer);
   updateSyncUI('pending');
   try {
     const getRes = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {
@@ -1210,7 +1258,7 @@ async function syncNow() {
       const remoteExpenses = remote.uitgaven || [];
       const remoteKosten = remote.kosten || [];
       STATE = { ...getDefaultState(), ...remote };
-      mergeSeedPhotos(STATE);
+      stripSeedPhotos(STATE);
       EXPENSES = remoteExpenses;
       KOSTEN = remoteKosten;
       localStorage.setItem(STORAGE_KEY, JSON.stringify(STATE));
@@ -1231,6 +1279,10 @@ async function syncNow() {
     updateSyncUI('error');
   } finally {
     syncInFlight = false;
+    if (syncDirtyDuringFlight) {
+      syncDirtyDuringFlight = false;
+      syncNow();
+    }
   }
 }
 

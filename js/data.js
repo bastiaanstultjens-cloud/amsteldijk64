@@ -730,13 +730,14 @@ function getDefaultState() {
     },
     financien: {
       inrichtingsbudget: FINANCE.inrichtingsbudgetDefault,
+      aflossingBetaald: 0,
     },
     autos: JSON.parse(JSON.stringify(CARS)),
     projecten: {
       projects: JSON.parse(JSON.stringify(PROJECTS)),
     },
     fotos: {
-      photos: JSON.parse(JSON.stringify(SEED_PHOTOS)),
+      photos: [],
     },
     chat: {
       apiKey: '',
